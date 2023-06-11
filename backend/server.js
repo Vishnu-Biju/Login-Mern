@@ -1,31 +1,35 @@
-// server.js
-
+require('dotenv').config();
 const express = require('express');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-const authMiddleware = require('./middleware/auth');
+const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
-
-dotenv.config();
+const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 5000;
+app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
-connectDB();
-
-// Middleware
-app.use(express.json());
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => {
+    console.log('Connected to the database');
+    // Start the server
+    const PORT = process.env.PORT || 4000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Database connection error:', error);
+  });
 
 // Routes
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
-// Protected route example
-app.get('/protected', authMiddleware, (req, res) => {
-  res.json({ message: 'Protected route accessed successfully' });
-});
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+
+
+
 

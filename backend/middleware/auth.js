@@ -1,17 +1,20 @@
-// middleware/auth.js
-
 const jwt = require('jsonwebtoken');
 
-const authMiddleware = (req, res, next) => {
+module.exports = (req, res, next) => {
+  // Get the token from the request headers
   const token = req.header('Authorization');
 
+  // Check if token exists
   if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
+    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id;
+
+    // Add the user object to the request
+    req.user = decoded.user;
     next();
   } catch (error) {
     console.error(error);
@@ -19,4 +22,3 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
